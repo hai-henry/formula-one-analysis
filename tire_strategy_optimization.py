@@ -16,21 +16,23 @@ def load_race_data(year, grand_prix, session):
 def analyze_tire_degradation(session, driver_code):
     laps = session.laps.pick_driver(driver_code)  # Get driver laps
     driver_laps = laps[["LapNumber", "LapTime", "Compound"]]  # Select columns
-    driver_laps["LapTime"] = driver_laps[
-        "LapTime"
-    ].dt.total_seconds()  # Convert Lap time to seconds
-    driver_laps = driver_laps.dropna(
-        subset=["LapTime"]
-    )  # Drop rows with missing lap times
-    driver_laps["PitStop"] = (
-        driver_laps["Compound"].shift() != driver_laps["Compound"]
-    )  # Create column to indicate pit stops
+
+    # Convert Lap time to seconds
+    driver_laps["LapTime"] = driver_laps["LapTime"].dt.total_seconds()
+
+    # Drop rows with missing lap times
+    driver_laps = driver_laps.dropna(subset=["LapTime"])
+
+    # Create column to indicate pit stops
+    driver_laps["PitStop"] = driver_laps["Compound"].shift() != driver_laps["Compound"]
 
     plt.figure(figsize=(12, 6))  # Figure size
     for compound, laps in driver_laps.groupby("Compound"):  # Group by tire compound
         plt.plot(laps["LapNumber"], laps["LapTime"], label=compound)  # Plot lap times
 
     pit_stops = driver_laps[driver_laps["PitStop"]]  # Get pit stops
+
+    # Plot pit stops
     plt.scatter(
         pit_stops["LapNumber"],
         pit_stops["LapTime"],
@@ -38,8 +40,9 @@ def analyze_tire_degradation(session, driver_code):
         marker="x",
         s=100,
         label="Pit Stop",
-    )  # Plot pit stops
+    )
 
+    # Plot
     plt.xlabel("Lap Number")
     plt.ylabel("Lap Time (s)")
     plt.legend()
