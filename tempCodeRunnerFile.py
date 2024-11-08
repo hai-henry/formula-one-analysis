@@ -1,2 +1,1 @@
-      "INTERMEDIATE": "Intermediate",
-        "WET": "Wet",
+    print(driver_data.head())
